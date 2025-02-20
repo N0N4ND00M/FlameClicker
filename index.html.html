@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flame Clicker</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: black;
+      color: white;
+      text-align: center;
+    }
+    body {
+      /* Tillåt vertikal scrollning vid behov men döljer horisontell */
+      overflow-x: hidden;
+      overflow-y: auto;
+      /* Flexbox för att centrera innehållet */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      animation: backgroundGlow 3s infinite alternate;
+      position: relative;
+    }
+    @keyframes backgroundGlow {
+      0% { background-color: black; }
+      100% { background-color: darkred; }
+    }
+    .container {
+      width: 90%;
+      max-width: 500px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid orange;
+      border-radius: 10px;
+      padding: 20px;
+      box-sizing: border-box;
+      margin: 20px; /* lite marginal runt om så det inte klipps vid zoom */
+    }
+    .static-logo {
+      width: 150px;
+      margin: 0 auto 20px;
+      display: block;
+    }
+    .title {
+      font-size: 2.5rem;
+      text-transform: uppercase;
+      color: orange;
+      text-shadow: 0 0 10px red;
+      margin: 0 0 10px;
+    }
+    .button {
+      background-color: orange;
+      color: white;
+      font-size: 1.25rem;
+      padding: 15px 30px;
+      border: none;
+      cursor: pointer;
+      margin: 10px;
+      border-radius: 5px;
+      transition: all 0.3s;
+    }
+    .button:hover {
+      background-color: red;
+      box-shadow: 0 0 20px yellow;
+    }
+    .stats {
+      margin-top: 20px;
+      font-size: 1.5rem;
+    }
+    .button-container {
+      margin-top: 20px;
+    }
+    .floating-logo {
+      position: absolute;
+      width: 50px;
+      bottom: -50px; /* Startar lite utanför skärmens nederkant */
+      animation: floatCycle 2s ease-in-out forwards;
+    }
+    @keyframes floatCycle {
+      0% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      50% {
+        transform: translateY(-600px); /* Flyger högre upp */
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Statisk logotyp -->
+    <img src="dogtr.png" alt="Flame Clicker Logo" class="static-logo">
+    
+    <h1 class="title">🔥 Flame Clicker 🔥</h1>
+    <p>Samla så många klick som möjligt innan tiden tar slut!</p>
+    <button class="button" id="clickButton">🔥 Klicka här 🔥</button>
+    <div class="stats">
+      <p>Poäng: <span id="score">0</span></p>
+      <p>⏳ Tid kvar: <span id="timer">30</span>s</p>
+    </div>
+    <div class="button-container">
+      <button class="button" id="restartButton">🔄 Börja om</button>
+      <button class="button" onclick="setTime(60)">1 min</button>
+      <button class="button" onclick="setTime(120)">2 min</button>
+      <button class="button" onclick="setTime(600)">10 min</button>
+    </div>
+  </div>
+  <!-- Klickljud med ny källa -->
+  <audio id="clickSound" src="https://www.soundjay.com/button/sounds/button-7.mp3"></audio>
+  <script>
+    let score = 0;
+    let timeLeft = 30;
+    let countdown;
+    
+    const scoreDisplay = document.getElementById("score");
+    const timerDisplay = document.getElementById("timer");
+    const clickButton = document.getElementById("clickButton");
+    const restartButton = document.getElementById("restartButton");
+    const clickSound = document.getElementById("clickSound");
+    
+    function startGame() {
+      score = 0;
+      scoreDisplay.textContent = score;
+      clickButton.disabled = false;
+      clickButton.textContent = "🔥 Klicka här 🔥";
+      clearInterval(countdown);
+      
+      countdown = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          clickButton.disabled = true;
+          clickButton.textContent = "🔥 Spelet är slut! 🔥";
+        }
+      }, 1000);
+    }
+    
+    clickButton.addEventListener("click", () => {
+      score++;
+      scoreDisplay.textContent = score;
+      clickSound.play();
+      
+      const floatingLogo = document.createElement("img");
+      floatingLogo.src = "dogtr.png";
+      floatingLogo.classList.add("floating-logo");
+      // Placera logotypen slumpmässigt horisontellt
+      floatingLogo.style.left = `${Math.random() * (window.innerWidth - 50)}px`;
+      document.body.appendChild(floatingLogo);
+      
+      setTimeout(() => floatingLogo.remove(), 2000);
+    });
+    
+    restartButton.addEventListener("click", () => {
+      timeLeft = 30;
+      timerDisplay.textContent = timeLeft;
+      startGame();
+    });
+    
+    function setTime(seconds) {
+      timeLeft = seconds;
+      timerDisplay.textContent = timeLeft;
+      startGame();
+    }
+    
+    startGame();
+  </script>
+</body>
+</html>
